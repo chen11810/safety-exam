@@ -1,0 +1,356 @@
+
+<style>
+:root { --tab-active: var(--color-background-info); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { padding: 1rem 0; }
+.tab-bar { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab-btn { padding: 7px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); transition: all 0.15s; }
+.tab-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; font-weight: 500; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.section-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); font-weight: 500; }
+.badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+.key-point { font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.75; padding: 4px 0 4px 12px; border-left: 2px solid var(--color-border-secondary); margin-bottom: 6px; }
+.key-point b { color: var(--color-text-primary); font-weight: 500; }
+.key-point .num { display: inline-block; background: var(--color-background-secondary); border-radius: 4px; padding: 0px 5px; font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-right: 4px; }
+
+/* Quiz styles */
+.quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: gap; gap: 8px; }
+.progress-bar { height: 4px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1.25rem; overflow: hidden; }
+.progress-fill { height: 100%; background: #378ADD; border-radius: 2px; transition: width 0.3s; }
+.q-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.q-type { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); display: inline-block; margin-bottom: 0.6rem; }
+.q-single { background: var(--color-background-info); color: var(--color-text-info); }
+.q-multi { background: var(--color-background-warning); color: var(--color-text-warning); }
+.q-judge { background: var(--color-background-success); color: var(--color-text-success); }
+.q-text { font-size: 14.5px; color: var(--color-text-primary); line-height: 1.7; margin-bottom: 1rem; font-weight: 500; }
+.opt-label { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); margin-bottom: 6px; cursor: pointer; font-size: 13.5px; color: var(--color-text-primary); transition: background 0.1s; line-height: 1.5; }
+.opt-label:hover { background: var(--color-background-secondary); }
+.opt-label.selected { border-color: #378ADD; background: var(--color-background-info); color: var(--color-text-info); }
+.opt-label.correct { border-color: #3B6D11; background: var(--color-background-success); color: var(--color-text-success); }
+.opt-label.wrong { border-color: #A32D2D; background: var(--color-background-danger); color: var(--color-text-danger); }
+.opt-label input { margin-top: 2px; flex-shrink: 0; }
+.btn-submit { padding: 8px 24px; background: var(--color-background-info); color: var(--color-text-info); border: none; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; }
+.btn-next { padding: 8px 24px; background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; margin-left: 8px; }
+.explain { font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; margin-top: 10px; line-height: 1.6; display: none; }
+.score-card { text-align: center; padding: 2rem 1rem; }
+.score-big { font-size: 48px; font-weight: 500; }
+.score-label { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+.stat-row { display: flex; gap: 12px; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+.stat-item { text-align: center; background: var(--color-background-secondary); padding: 10px 20px; border-radius: var(--border-radius-md); }
+.stat-num { font-size: 22px; font-weight: 500; }
+.stat-lbl { font-size: 12px; color: var(--color-text-secondary); }
+.quiz-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.q-counter { font-size: 13px; color: var(--color-text-secondary); }
+</style>
+
+<div class="container">
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('review')">📋 复习重点</button>
+  <button class="tab-btn" onclick="showTab('quiz')">📝 模拟题库</button>
+</div>
+
+<div id="tab-review" class="tab-content active">
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-red">必考</span> 一、安全责任体系</div>
+  <div class="key-point"><b>第一责任人</b>：党政主要负责人是学校实验室安全工作<b>第一责任人</b></div>
+  <div class="key-point"><b>重要领导责任人</b>：分管实验室工作的校领导，协助第一责任人</div>
+  <div class="key-point"><b>直接责任人</b>：实验室负责人是本实验室安全工作的<b>直接责任人</b></div>
+  <div class="key-point"><b>项目第一责任人</b>：项目负责人（含教学课程任课教师）是项目安全的第一责任人</div>
+  <div class="key-point"><b>工作原则</b>：党政同责，一岗双责，齐抓共管，失职追责</div>
+  <div class="key-point"><b>事故上报</b>：发生安全事故后，应在 <span class="num">1小时</span> 内向所在地党委、政府及相关部门和高校主管部门报告，并抄报教育部</div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-red">必考</span> 二、危险化学品管理</div>
+  <div class="key-point"><b>剧毒化学品"五双"管理</b>：双人验收、双人保管、双人发货、双把锁、双本账；登记资料至少保存 <span class="num">1年</span></div>
+  <div class="key-point"><b>易制毒化学品</b>：第一类及药品类实行双人双锁管理；账册保存 <span class="num">≥2年</span></div>
+  <div class="key-point"><b>麻醉药品和第一类精神药品</b>：专用账册，双人双锁，账册自有效期满之日起保存 <span class="num">≥5年</span></div>
+  <div class="key-point"><b>实验室存量限制</b>：同一防火单元危险化学品（不含压缩气/液化气）原则上 <span class="num">≤100L或100kg</span>；易燃易爆 <span class="num">≤50L或50kg</span>，单一包装 <span class="num">≤20L或20kg</span></div>
+  <div class="key-point"><b>危险品储存区</b>：不得建在地下或半地下，不得建在实验楼内</div>
+  <div class="key-point"><b>废弃化学品处置</b>：委托有危险废物经营许可证的单位清运处置，废液不超容量 <span class="num">3/4</span></div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-blue">重点</span> 三、消防安全管理（JY/T 0616-2023）</div>
+  <div class="key-point"><b>消防工作方针</b>：预防为主、防消结合</div>
+  <div class="key-point"><b>防火巡查频次</b>：学校每日至少 <span class="num">2次</span>；学校每季度至少1次、教学科研单位每月至少1次、实验室每周至少1次防火检查</div>
+  <div class="key-point"><b>消防安全管理人</b>：分管消防工作和实验室工作的校领导是消防安全管理人；每学期至少召开 <span class="num">1次</span> 消防安全会议</div>
+  <div class="key-point"><b>疏散路线</b>：逃生路线应有 <span class="num">≥2条</span>；超过200m²楼层有 <span class="num">≥2</span> 个安全出口；75m²以上实验室有 <span class="num">2</span> 个出入口</div>
+  <div class="key-point"><b>视频记录</b>：监控视频存储时间 <span class="num">≥30天</span></div>
+  <div class="key-point"><b>特殊情况供电</b>：24小时供电供气须报实验室管理部门备案，并在开关处做好区别标识</div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-blue">重点</span> 四、安全检查项目表（2025年）核心要求</div>
+  <div class="key-point"><b>安全信息牌</b>：每个房间门口挂安全信息牌，包含分级分类结果、警示标识、安全责任人、应急联系电话</div>
+  <div class="key-point"><b>应急喷淋</b>：与工作区域距离 <span class="num">≤30m</span>，喷淋头下方 <span class="num">410mm</span> 范围内无障碍物；以 <span class="num">≥1.5L/min</span> 流量供水</div>
+  <div class="key-point"><b>通风柜使用</b>：实验时可调玻璃视窗开至离台面 <span class="num">10~15cm</span>；柜口面风速 <span class="num">0.35~0.75m/s</span></div>
+  <div class="key-point"><b>实验室噪声</b>：一般不高于 <span class="num">55分贝</span>（机械设备不高于 <span class="num">70分贝</span>）</div>
+  <div class="key-point"><b>操作面积</b>：多人同时实验时，人均操作面积 <span class="num">≥2.5m²</span></div>
+  <div class="key-point"><b>急救箱</b>：不得上锁，并定期检查物品是否在保质期内</div>
+  <div class="key-point"><b>危险性实验</b>：高温、高压、高速运转等危险性实验必须 <span class="num">两人</span> 在场；通宵实验须两人在场并有事先审批</div>
+  <div class="key-point"><b>冰箱使用期限</b>：一般 <span class="num">10年</span>；烘箱、电阻炉一般 <span class="num">12年</span>；超期须经审批</div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-amber">重要</span> 五、生物安全、辐射与特种设备</div>
+  <div class="key-point"><b>生物安全等级</b>：BSL-3/4 须经政府部门批准建设；BSL-1/2 由学校建设后报卫生或农业农村部门备案</div>
+  <div class="key-point"><b>高致病性病原微生物</b>：实行双人双锁管理</div>
+  <div class="key-point"><b>辐射工作人员</b>：须持生态环境部考核的成绩报告单上岗；职业体检 <span class="num">2年1次</span>；个人剂量计监测 <span class="num">3个月1次</span></div>
+  <div class="key-point"><b>放射源储存库</b>：设双人双锁，配安全报警系统和视频监控</div>
+  <div class="key-point"><b>压力容器使用年限</b>：超过 <span class="num">20年</span> 未规定设计年限的视为达到使用年限，超期须检验和安全评估</div>
+  <div class="key-point"><b>起重机械检查</b>：在用起重机至少每月 <span class="num">1次</span> 日常维护保养和自行检查</div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="badge badge-green">基础</span> 六、教育培训与准入</div>
+  <div class="key-point">涉及重要危险源的高校应设置<b>有学分的实验室安全课程</b>，或将安全准入教育培训纳入培养环节</div>
+  <div class="key-point">实验室安全管理相关负责人应接受培训后上岗，并<b>定期轮训</b></div>
+  <div class="key-point">各级主管人员及技术人员到岗 <span class="num">一年内</span> 须接受实验室安全培训</div>
+  <div class="key-point">考试系统或题库须<b>及时更新</b>，通过者发放合格证书或保留记录</div>
+</div>
+
+</div>
+
+<div id="tab-quiz" class="tab-content">
+  <div id="quiz-area"></div>
+</div>
+</div>
+
+<script>
+const questions = [
+  {type:'single', q:'根据《高等学校实验室安全规范》，学校实验室安全管理工作中，谁是第一责任人？',
+   opts:['A. 分管实验室工作的校领导','B. 党政主要负责人','C. 实验室主管职能部门负责人','D. 实验室负责人'],
+   ans:[1], explain:'党政主要负责人是第一责任人，分管实验室工作的校领导是重要领导责任人。'},
+  {type:'single', q:'发生实验室安全事故后，学校应在多长时间内向所在地党委、政府及相关部门报告？',
+   opts:['A. 30分钟内','B. 1小时内','C. 2小时内','D. 4小时内'],
+   ans:[1], explain:'根据《高等学校实验室安全规范》第十条：应在1小时内如实向所在地党委、政府及其相关部门和高校主管部门报告情况，并抄报教育部。'},
+  {type:'single', q:'剧毒化学品实行"五双"管理，其中"双本账"指的是什么？',
+   opts:['A. 两人签字的账本','B. 两本独立的登记账册','C. 电子账本和纸质账本各一本','D. 入库账和出库账各一本'],
+   ans:[1], explain:'"五双"管理即：双人验收、双人保管、双人发货、双把锁、双本账。"双本账"指两本独立账册，登记资料至少保存1年。'},
+  {type:'single', q:'根据《高等学校实验室安全检查项目表（2025年）》，同一防火单元内，易燃易爆性化学品的存放总量不应超过：',
+   opts:['A. 20L或20kg','B. 50L或50kg','C. 100L或100kg','D. 200L或200kg'],
+   ans:[1], explain:'同一防火单元内，危险化学品总量原则上不超过100L或100Kg；其中易燃易爆性化学品的存放总量不超过50L或50Kg，且单一包装容器不大于20L或20Kg。'},
+  {type:'single', q:'实验室内应急喷淋装置安装地点与工作区域之间的距离要求是：',
+   opts:['A. 不超过10m','B. 不超过15m','C. 不超过20m','D. 不超过30m'],
+   ans:[3], explain:'根据安全检查项目表：应急喷淋安装地点与工作区域之间畅通，距离不超过30m。'},
+  {type:'single', q:'根据《高等学校实验室消防安全管理规范》，防火巡查的频次要求，学校每日至少应开展：',
+   opts:['A. 一次','B. 两次','C. 三次','D. 四次'],
+   ans:[1], explain:'JY/T 0616-2023规定：学校应建立实验室各级防火巡查制度，应每日至少开展两次巡查。'},
+  {type:'single', q:'实验室通风柜进行实验时，可调玻璃视窗应开至离台面多少范围？',
+   opts:['A. 5~10cm','B. 10~15cm','C. 15~20cm','D. 20~25cm'],
+   ans:[1], explain:'通风柜可调玻璃视窗开至离台面10~15cm，保持通风效果，并保护操作人员胸部以上部位。'},
+  {type:'single', q:'辐射工作人员个人剂量计应委托有资质的单位按时进行剂量监测，频率为：',
+   opts:['A. 每月一次','B. 每2个月一次','C. 每3个月一次','D. 每6个月一次'],
+   ans:[2], explain:'辐射工作人员进入实验场所须佩戴个人剂量计，委托有资质单位按时监测，每3个月1次。'},
+  {type:'single', q:'麻醉药品和第一类精神药品的专用账册，保存期限应自药品有效期期满之日起不少于：',
+   opts:['A. 1年','B. 2年','C. 3年','D. 5年'],
+   ans:[3], explain:'麻醉药品和第一类精神药品：配备专人管理并建立专用账册，专用账册的保存期限应当自药品有效期期满之日起不少于5年。'},
+  {type:'single', q:'根据安全检查项目表，通宵实验的要求是：',
+   opts:['A. 一人在场即可','B. 须两人在场，有事先审批制度','C. 须三人轮班','D. 需向学校备案即可'],
+   ans:[1], explain:'实验时不能脱岗，通宵实验须两人在场并有事先审批制度。'},
+  {type:'single', q:'根据消防安全管理规范，消防安全管理人每学期应至少组织召开实验室消防安全会议：',
+   opts:['A. 一次','B. 两次','C. 三次','D. 四次'],
+   ans:[0], explain:'JY/T 0616-2023规定：组织召开学校实验室消防安全会议，每学期至少一次，并形成会议纪要。'},
+  {type:'single', q:'实验室监控视频记录存储时间不少于：',
+   opts:['A. 7天','B. 15天','C. 30天','D. 60天'],
+   ans:[2], explain:'根据安全检查项目表：视频记录存储时间不少于30天。'},
+  {type:'single', q:'易制毒化学品账册应保存的期限为：',
+   opts:['A. 不少于1年','B. 不少于2年','C. 不少于3年','D. 不少于5年'],
+   ans:[1], explain:'第一类易制毒化学品、药品类易制毒化学品实行双人双锁管理，账册保存期限不少于2年。'},
+  {type:'single', q:'超过200m²的实验楼层，应具有至少多少个安全出口？',
+   opts:['A. 一处','B. 两处','C. 三处','D. 四处'],
+   ans:[1], explain:'超过200m²的实验楼层具有至少两处安全出口，75m²以上实验室要有两个出入口。'},
+  {type:'single', q:'危险品储存区的位置要求，下列哪项是正确的？',
+   opts:['A. 可建在地下室，但须有防爆措施','B. 不得建在地下或半地下，不得建在实验楼内','C. 可建在实验楼内地下一层','D. 建在实验楼内须按实验室标准管理即可'],
+   ans:[1], explain:'危险化学品储存区不能建设在地下或半地下，不得建设在实验楼内。若只能在实验楼内存放，则应按照实验室标准要求管理。'},
+
+  {type:'multi', q:'根据《高等学校实验室安全规范》，实验室安全管理制度主要包括哪些方面？（多选）',
+   opts:['A. 安全检查制度','B. 安全教育培训与准入制度','C. 项目风险评估与管控制度','D. 安全应急制度','E. 实验室安全事故上报制度'],
+   ans:[0,1,2,3,4], explain:'安全管理制度主要包括：①安全检查制度；②安全教育培训与准入制度；③项目风险评估与管控制度；④危险源全周期管理制度；⑤安全应急制度；⑥实验室安全事故上报制度。以上选项均属于其中。'},
+  {type:'multi', q:'根据安全检查项目表，实验室场所布局应符合哪些要求？（多选）',
+   opts:['A. 实验室操作区层高不低于2m','B. 人均操作面积不小于2.5m²','C. 实验楼大走廊消防通道净宽大于1.5m','D. 有毒有害实验区与学习区明确分开','E. 实验室噪声一般不高于55分贝'],
+   ans:[0,1,2,3,4], explain:'以上均为安全检查项目表中的明确要求。'},
+  {type:'multi', q:'下列关于危险气体（气瓶）管理，说法正确的有哪些？（多选）',
+   opts:['A. 气瓶应合理固定，存放须通风、远离热源','B. 可燃性气体与氧气等助燃气体气瓶不得混放','C. 室内放置危险气体气瓶应使用常时排风且带监测报警的气瓶柜','D. 使用完毕应及时关闭气瓶总阀','E. 气瓶存放应尽量多储备'],
+   ans:[0,1,2,3], explain:'E错误：气瓶的存放应控制在最小需求量，而非多储备。其余选项均正确。'},
+  {type:'multi', q:'根据《高等学校实验室消防安全管理规范》，消防安全培训应包括哪些内容？（多选）',
+   opts:['A. 实验室的火灾类型、性质和防火措施','B. 灭火器材的性能、使用方法','C. 火灾报警方法和疏散逃生知识','D. 实验室灭火和应急疏散预案','E. 典型案例分析'],
+   ans:[0,1,2,3,4], explain:'JY/T 0616-2023规定消防安全培训应包括上述所有内容，以及消防法律法规、各类实验室火灾隐患查找和整改方法等。'},
+  {type:'multi', q:'高危险性实验中，以下哪些情况要求必须有两人在场？（多选）',
+   opts:['A. 高温实验','B. 高压实验','C. 高速运转实验','D. 通宵实验','E. 普通低压低温实验'],
+   ans:[0,1,2,3], explain:'危险性实验（如高温、高压、高速运转等）时必须有两人在场；通宵实验须两人在场并有事先审批制度。E为普通实验，不适用。'},
+
+  {type:'judge', q:'实验室负责人是实验室安全工作的重要领导责任人。',
+   ans:[1], explain:'错误。实验室负责人是本实验室安全工作的"直接责任人"，不是"重要领导责任人"。重要领导责任人是分管实验室工作的校领导。'},
+  {type:'judge', q:'剧毒化学品登记资料应至少保存2年。',
+   ans:[1], explain:'错误。剧毒化学品登记资料至少保存1年（不是2年）。易制毒化学品账册保存不少于2年，麻醉药品和第一类精神药品账册自有效期满起不少于5年。'},
+  {type:'judge', q:'进行化学实验时，实验人员应穿着质地合适的实验服，并可以根据个人习惯选择是否佩戴防护眼镜。',
+   ans:[1], explain:'错误。进行化学、生物安全和高温实验时，须根据需要佩戴防护眼镜等个体防护用品，这是强制要求，不能根据个人习惯自行选择。'},
+  {type:'judge', q:'实验室应急喷淋可以用普通淋浴装置代替，只要能达到足够的水压和流量即可。',
+   ans:[1], explain:'错误。安全检查项目表明确规定：不能以普通淋浴装置代替应急喷淋装置。'},
+  {type:'judge', q:'存放危险化学品的冰箱，必须是防爆冰箱或经过防爆改造的冰箱，并在冰箱门上注明是否防爆。',
+   ans:[0], explain:'正确。安全检查项目表明确：贮存危险化学品的冰箱应为防爆冰箱或经过防爆改造的冰箱，并在冰箱门上注明是否防爆。'},
+  {type:'judge', q:'发生实验室重大安全隐患时，应立即停止实验活动，整改完成或采取相应防护措施后方能恢复实验。',
+   ans:[0], explain:'正确。安全检查项目表规定：如存在重大隐患，实验室应立即停止实验活动，整改完成或采取相应防护措施后方能恢复实验。'},
+  {type:'judge', q:'涉及重要危险源的高校，可以选择开设无学分的安全课程，或不纳入培养环节，只需确保培训效果即可。',
+   ans:[1], explain:'错误。《高等学校实验室安全规范》第十二条规定：涉及重要危险源的高校应设置"有学分的"实验室安全课程，或将安全准入教育培训纳入培养环节。'},
+  {type:'judge', q:'实验室门上应有观察窗，且实验室的外开门不得阻挡逃生路径。',
+   ans:[0], explain:'正确。安全检查项目表明确规定：实验室门上有观察窗，外开门不阻挡逃生路径。'},
+  {type:'judge', q:'停电时，电子门禁系统可以处于关闭状态，以保证安全防盗。',
+   ans:[1], explain:'错误。安全检查项目表规定：停电时，电子门禁系统应是开启状态或者有备用机械钥匙，以便于人员疏散和应急。'},
+  {type:'judge', q:'防盗安全门的防盗安全级别要求剧毒化学品存放场所为乙级（含）以上。',
+   ans:[0], explain:'正确。防盗安全门应符合GB 17565《防盗安全门通用技术条件》的要求，防盗安全级别为乙级（含）以上。'},
+  {type:'judge', q:'实验室废液可以在液面不超过容量3/4的情况下直接排入下水道处理。',
+   ans:[1], explain:'错误。严禁将实验室危险废物直接排入下水道。废液应分类装入专用废液桶中，液面不超过容量的3/4，并由有资质的单位统一处置。'},
+];
+
+let shuffled = [], cur = 0, answers = {}, submitted = {};
+
+function shuffle(arr) { let a=[...arr]; for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function initQuiz() {
+  shuffled = shuffle(questions).slice(0, 25);
+  cur = 0; answers = {}; submitted = {};
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  if(cur >= shuffled.length) { renderScore(); return; }
+  const q = shuffled[cur];
+  const typeMap = {single:'单选题',multi:'多选题',judge:'判断题'};
+  const typeClass = {single:'q-single',multi:'q-multi',judge:'q-judge'};
+  const pct = Math.round((cur/shuffled.length)*100);
+  let optsHtml = '';
+  if(q.type==='judge') {
+    optsHtml = `
+      <label class="opt-label" id="opt0"><input type="radio" name="q" value="0"> 正确 ✓</label>
+      <label class="opt-label" id="opt1"><input type="radio" name="q" value="1"> 错误 ✗</label>`;
+  } else if(q.type==='single') {
+    optsHtml = q.opts.map((o,i)=>`<label class="opt-label" id="opt${i}"><input type="radio" name="q" value="${i}"> ${o}</label>`).join('');
+  } else {
+    optsHtml = q.opts.map((o,i)=>`<label class="opt-label" id="opt${i}"><input type="checkbox" name="q" value="${i}"> ${o}</label>`).join('');
+  }
+  area.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span class="q-counter">第 ${cur+1} / ${shuffled.length} 题</span>
+      <span style="font-size:12px;color:var(--color-text-secondary);">${Math.round(Object.keys(submitted).length)} 题已完成</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="q-card">
+      <span class="q-type ${typeClass[q.type]}">${typeMap[q.type]}</span>
+      <div class="q-text">${q.q}</div>
+      <div id="opts">${optsHtml}</div>
+      <div class="explain" id="explain">${q.explain}</div>
+    </div>
+    <div class="quiz-controls">
+      <button class="btn-submit" onclick="submitAns()">确认答案</button>
+      <button class="btn-next" onclick="nextQ()" style="display:none" id="nextBtn">下一题 →</button>
+      ${cur>0?'<button class="btn-next" onclick="prevQ()">← 上一题</button>':''}
+    </div>`;
+  if(answers[cur]!==undefined) restoreAnswer();
+  if(submitted[cur]) showResult();
+}
+
+function getSelected() {
+  const inputs = document.querySelectorAll('input[name="q"]:checked');
+  return Array.from(inputs).map(i=>parseInt(i.value));
+}
+
+function restoreAnswer() {
+  const sel = answers[cur];
+  sel.forEach(v=>{
+    const inp = document.querySelector(`input[value="${v}"]`);
+    if(inp) inp.checked = true;
+  });
+}
+
+function submitAns() {
+  const q = shuffled[cur];
+  const sel = getSelected();
+  if(sel.length===0) { alert('请先选择答案'); return; }
+  answers[cur] = sel;
+  submitted[cur] = true;
+  showResult();
+}
+
+function showResult() {
+  const q = shuffled[cur];
+  const sel = answers[cur] || [];
+  const correct = JSON.stringify(sel.slice().sort()) === JSON.stringify(q.ans.slice().sort());
+  q.opts ? q.opts.forEach((_,i)=>{
+    const lbl = document.getElementById('opt'+i);
+    if(!lbl) return;
+    const isAns = q.ans.includes(i);
+    const isSel = sel.includes(i);
+    lbl.classList.remove('selected','correct','wrong');
+    if(isAns) lbl.classList.add('correct');
+    else if(isSel) lbl.classList.add('wrong');
+  }) : null;
+  if(q.type==='judge') {
+    [0,1].forEach(i=>{
+      const lbl = document.getElementById('opt'+i);
+      if(!lbl) return;
+      const isAns = q.ans.includes(i);
+      const isSel = sel.includes(i);
+      lbl.classList.remove('selected','correct','wrong');
+      if(isAns) lbl.classList.add('correct');
+      else if(isSel) lbl.classList.add('wrong');
+    });
+  }
+  document.getElementById('explain').style.display='block';
+  const sb = document.querySelector('.btn-submit');
+  if(sb) sb.style.display='none';
+  const nb = document.getElementById('nextBtn');
+  if(nb) nb.style.display='inline-block';
+  document.querySelectorAll('input[name="q"]').forEach(i=>i.disabled=true);
+}
+
+function nextQ() { cur = Math.min(cur+1, shuffled.length); renderQuestion(); }
+function prevQ() { cur = Math.max(cur-1,0); renderQuestion(); }
+
+function renderScore() {
+  let correct=0;
+  shuffled.forEach((q,i)=>{
+    const sel = answers[i]||[];
+    if(JSON.stringify(sel.slice().sort())===JSON.stringify(q.ans.slice().sort())) correct++;
+  });
+  const pct = Math.round(correct/shuffled.length*100);
+  const color = pct>=60?'var(--color-text-success)':pct>=40?'var(--color-text-warning)':'var(--color-text-danger)';
+  const singles = shuffled.filter(q=>q.type==='single');
+  const multis = shuffled.filter(q=>q.type==='multi');
+  const judges = shuffled.filter(q=>q.type==='judge');
+  const sc = (arr)=>arr.filter((_,i)=>{const idx=shuffled.indexOf(arr[i]);const sel=answers[idx]||[];return JSON.stringify(sel.slice().sort())===JSON.stringify(shuffled[idx].ans.slice().sort());}).length;
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="score-card">
+      <div class="score-big" style="color:${color}">${correct}<span style="font-size:24px;color:var(--color-text-secondary)">/${shuffled.length}</span></div>
+      <div class="score-label">${pct}分 ${pct>=60?'🎉 通过':'📚 需要继续复习'}</div>
+      <div class="stat-row">
+        <div class="stat-item"><div class="stat-num" style="color:var(--color-text-info)">${singles.filter((_,i)=>{const idx=shuffled.indexOf(singles[i]);const sel=answers[idx]||[];return JSON.stringify(sel.slice().sort())===JSON.stringify(shuffled[idx].ans.slice().sort());}).length}/${singles.length}</div><div class="stat-lbl">单选题</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:var(--color-text-warning)">${multis.filter((_,i)=>{const idx=shuffled.indexOf(multis[i]);const sel=answers[idx]||[];return JSON.stringify(sel.slice().sort())===JSON.stringify(shuffled[idx].ans.slice().sort());}).length}/${multis.length}</div><div class="stat-lbl">多选题</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:var(--color-text-success)">${judges.filter((_,i)=>{const idx=shuffled.indexOf(judges[i]);const sel=answers[idx]||[];return JSON.stringify(sel.slice().sort())===JSON.stringify(shuffled[idx].ans.slice().sort());}).length}/${judges.length}</div><div class="stat-lbl">判断题</div></div>
+      </div>
+      <button class="btn-submit" onclick="initQuiz()" style="margin-top:1rem;">重新练习（随机题目）</button>
+    </div>`;
+}
+
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='quiz' && shuffled.length===0) initQuiz();
+}
+
+initQuiz();
+</script>
