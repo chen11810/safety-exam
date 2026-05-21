@@ -1,0 +1,820 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.container { padding: 1.5rem 0; max-width: 680px; }
+
+.header { margin-bottom: 2rem; }
+.header h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.header p { font-size: 14px; color: var(--color-text-secondary); }
+
+.tab-bar {
+  display: flex; gap: 4px; margin-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 0;
+}
+.tab {
+  padding: 8px 16px; font-size: 14px; font-weight: 500;
+  color: var(--color-text-secondary); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  background: transparent; border-top: none; border-left: none; border-right: none;
+  transition: color 0.15s;
+}
+.tab:hover { color: var(--color-text-primary); }
+.tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 12px; overflow: hidden;
+}
+.card-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer;
+  justify-content: space-between;
+}
+.card-header-left { display: flex; align-items: center; gap: 12px; }
+.card-icon {
+  width: 32px; height: 32px; border-radius: var(--border-radius-md);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.card-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.card-chevron { font-size: 14px; color: var(--color-text-secondary); transition: transform 0.2s; }
+.card-chevron.open { transform: rotate(180deg); }
+
+.card-body { display: none; padding: 0 16px 16px; }
+.card-body.open { display: block; }
+
+.step-list { list-style: none; }
+.step-item {
+  display: flex; gap: 12px; padding: 10px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.step-item:last-child { border-bottom: none; }
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.step-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.code-block {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px; font-family: var(--font-mono);
+  font-size: 12px; color: var(--color-text-primary);
+  margin: 8px 0; line-height: 1.7; white-space: pre;
+}
+
+.tip-box {
+  background: var(--color-background-info);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-left: 3px solid #378ADD;
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px; margin: 10px 0;
+  font-size: 13px; color: var(--color-text-info); line-height: 1.6;
+}
+
+.warn-box {
+  background: var(--color-background-warning);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-left: 3px solid #EF9F27;
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px; margin: 10px 0;
+  font-size: 13px; color: var(--color-text-warning); line-height: 1.6;
+}
+
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 500;
+  padding: 2px 8px; border-radius: 99px; margin-right: 4px;
+}
+.badge-blue { background: #E6F1FB; color: #185FA5; }
+.badge-green { background: #EAF3DE; color: #3B6D11; }
+.badge-purple { background: #EEEDFE; color: #534AB7; }
+.badge-amber { background: #FAEEDA; color: #854F0B; }
+
+.shortcut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.shortcut-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.shortcut-key {
+  font-family: var(--font-mono); font-size: 11px;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 4px; padding: 2px 7px; color: var(--color-text-primary);
+}
+.shortcut-desc { font-size: 12px; color: var(--color-text-secondary); }
+
+.plugin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.plugin-card {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px;
+}
+.plugin-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.plugin-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+@media (prefers-color-scheme: dark) {
+  .badge-blue { background: #0C447C; color: #B5D4F4; }
+  .badge-green { background: #27500A; color: #C0DD97; }
+  .badge-purple { background: #3C3489; color: #CECBF6; }
+  .badge-amber { background: #633806; color: #FAC775; }
+}
+</style>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="ti ti-notebook" aria-hidden="true"></i> Obsidian 完整使用教程</h1>
+    <p>从零开始到高效知识管理 · 初级 + 进阶两阶段学习路径</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('basic')">🌱 初级入门</button>
+    <button class="tab" onclick="switchTab('advanced')">🚀 进阶技巧</button>
+    <button class="tab" onclick="switchTab('workflow')">⚙️ 实战工作流</button>
+    <button class="tab" onclick="switchTab('shortcuts')">⌨️ 快捷键速查</button>
+  </div>
+
+  <!-- 初级入门 -->
+  <div id="basic" class="section active">
+    
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#E6F1FB;"><i class="ti ti-download" style="color:#185FA5;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">1. 安装与初始设置</div>
+            <div class="card-sub">下载安装 · 创建 Vault · 基础界面熟悉</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">下载 Obsidian</div>
+              <div class="step-desc">前往 obsidian.md 下载对应平台版本（Windows / macOS / Linux / iOS / Android），Obsidian 个人使用完全免费。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">创建 Vault（知识库）</div>
+              <div class="step-desc">Vault 本质上是本地文件夹。建议将 Vault 放在 iCloud / Dropbox / OneDrive 中以实现多设备同步。启动后点击「Create new vault」选择文件夹即可。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">认识界面三大区域</div>
+              <div class="step-desc">
+                <span class="badge badge-blue">左侧栏</span>文件列表、搜索、书签<br>
+                <span class="badge badge-green">中间区</span>编辑器主区域，支持多标签/分屏<br>
+                <span class="badge badge-purple">右侧栏</span>反向链接、大纲、标签面板
+              </div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">推荐初始设置</div>
+              <div class="step-desc">Settings → Editor：开启「Readable line length」保证阅读舒适度；开启「Vim key bindings」（可选）；主题推荐 Minimal 或 Things。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EAF3DE;"><i class="ti ti-markdown" style="color:#3B6D11;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">2. Markdown 核心语法</div>
+            <div class="card-sub">标题 · 加粗 · 列表 · 代码块 · 表格</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="code-block"># 一级标题
+## 二级标题
+### 三级标题
+
+**加粗文字**  *斜体文字*  ~~删除线~~
+`行内代码`
+
+- 无序列表
+- 第二项
+  - 嵌套子项
+
+1. 有序列表
+2. 第二项
+
+> 引用块文字
+
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| 数据 | 数据 | 数据 |
+
+```python
+print("代码块")
+```</div>
+        <div class="tip-box"><i class="ti ti-info-circle" aria-hidden="true"></i> Obsidian 同时支持「实时预览」和「源码」两种编辑模式，用 Ctrl+E 切换。Live Preview 模式下 Markdown 会即时渲染，推荐日常使用。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EEEDFE;"><i class="ti ti-link" style="color:#534AB7;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">3. 双向链接（核心功能）</div>
+            <div class="card-sub">内部链接 · 创建新笔记 · 关系图谱</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">创建内部链接</div>
+              <div class="step-desc">输入 <code>[[笔记名]]</code> 即可链接到另一篇笔记。输入 <code>[[</code> 后会自动弹出已有笔记列表，支持模糊搜索。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">链接别名</div>
+              <div class="step-desc">使用 <code>[[实际文件名|显示文字]]</code> 让链接显示不同的文字，如 <code>[[Python编程|Python]]</code>。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">链接到章节</div>
+              <div class="step-desc">使用 <code>[[笔记名#标题]]</code> 精确链接到某篇笔记的特定章节。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">查看关系图谱</div>
+              <div class="step-desc">点击左侧「Graph View」图标，可视化查看所有笔记的链接关系。孤立节点意味着笔记还未建立连接，需要整理。</div>
+            </div>
+          </li>
+        </ul>
+        <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i> 双向链接的核心思维：先写内容，后整理结构。不需要预先设计完美的文件夹结构，链接会自然形成知识网络。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#FAEEDA;"><i class="ti ti-folder" style="color:#854F0B;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">4. 文件管理与标签</div>
+            <div class="card-sub">文件夹组织 · Tag 标签 · 搜索过滤</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">文件夹策略（PARA法）</div>
+              <div class="step-desc">
+                <span class="badge badge-blue">Projects</span>当前进行中的项目<br>
+                <span class="badge badge-green">Areas</span>持续关注的领域<br>
+                <span class="badge badge-purple">Resources</span>参考资料库<br>
+                <span class="badge badge-amber">Archive</span>归档的历史内容
+              </div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">使用标签</div>
+              <div class="step-desc">在笔记中输入 <code>#标签名</code> 即可添加标签。支持嵌套标签如 <code>#读书/小说</code>，标签面板可统一管理所有标签。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">强大的搜索功能</div>
+              <div class="step-desc">Ctrl+Shift+F 全局搜索，支持 <code>tag:#标签名</code>、<code>path:文件夹</code>、<code>file:文件名</code> 等高级过滤语法。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#FAECE7;"><i class="ti ti-embed" style="color:#993C1D;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">5. 嵌入与附件</div>
+            <div class="card-sub">图片 · PDF · 音频 · 嵌入其他笔记</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="code-block">![[图片文件名.png]]          ← 嵌入图片
+![[笔记名]]                 ← 嵌入其他笔记内容
+![[笔记名#章节标题]]        ← 嵌入特定章节
+![[PDF文件.pdf|宽度]]       ← 嵌入PDF，可指定宽度
+
+直接拖拽图片到编辑区即可插入</div>
+        <div class="tip-box"><i class="ti ti-settings" aria-hidden="true"></i> Settings → Files & Links → Default location for new attachments，建议设置为「In subfolder under current folder」统一管理附件。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 进阶技巧 -->
+  <div id="advanced" class="section">
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EEEDFE;"><i class="ti ti-code" style="color:#534AB7;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">1. Properties / YAML 元数据</div>
+            <div class="card-sub">结构化信息 · 自定义字段 · Dataview 基础</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="step-title" style="margin-bottom:8px; font-size:14px;">在笔记最顶部添加 YAML Front Matter：</div>
+        <div class="code-block">---
+title: 我的读书笔记
+author: 作者名
+date: 2024-01-15
+status: 读中
+tags: [读书, 小说, 科幻]
+rating: 4
+---
+
+正文内容从这里开始...</div>
+        <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i> Obsidian 1.4+ 版本引入了可视化的 Properties 面板（Ctrl+;），无需手动编辑 YAML，直接点击添加字段即可。结合 Dataview 插件可进行强大的数据库式查询。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EAF3DE;"><i class="ti ti-template" style="color:#3B6D11;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">2. 模板系统</div>
+            <div class="card-sub">日记模板 · 项目模板 · Templater 插件</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">开启内置模板功能</div>
+              <div class="step-desc">Settings → Core plugins → Templates 开启，设置模板文件夹路径（如 Templates/）。使用 Ctrl+Shift+T 插入模板。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">日记模板示例</div>
+              <div class="step-desc">
+                <div class="code-block"># {{date:YYYY-MM-DD}} {{time:dddd}}
+
+## 今日目标
+- [ ] 
+
+## 今日记录
+
+
+## 反思与总结
+
+**亮点：**
+**待改进：**
+
+## 明日计划
+- [ ] </div>
+              </div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">Templater 插件（进阶）</div>
+              <div class="step-desc">支持 JavaScript 动态模板，如自动插入当前日期、随机引用、从选中文字创建笔记等高级操作。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#E6F1FB;"><i class="ti ti-database" style="color:#185FA5;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">3. Dataview 插件</div>
+            <div class="card-sub">把 Vault 当数据库 · 动态列表 · 表格查询</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="step-title" style="margin-bottom:8px; font-size:14px;">常用查询示例：</div>
+        <div class="code-block">```dataview
+LIST FROM #读书 WHERE status = "读中"
+SORT date DESC
+```
+
+```dataview
+TABLE author, rating, date
+FROM "Books"
+WHERE rating >= 4
+SORT rating DESC
+```
+
+```dataview
+TASK FROM "Projects"
+WHERE !completed
+GROUP BY file.name
+```</div>
+        <div class="tip-box"><i class="ti ti-info-circle" aria-hidden="true"></i> Dataview 查询是实时的，笔记内容改变时自动刷新。非常适合管理读书清单、项目追踪、习惯记录等需要聚合视图的场景。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#FAEEDA;"><i class="ti ti-puzzle" style="color:#854F0B;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">4. 必装插件推荐</div>
+            <div class="card-sub">社区精选 · 功能扩展 · 使用场景</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="plugin-grid">
+          <div class="plugin-card">
+            <div class="plugin-name">Dataview</div>
+            <div class="plugin-desc">把笔记变成数据库，支持 DQL 查询语言</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Templater</div>
+            <div class="plugin-desc">高级模板系统，支持 JS 脚本动态生成</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Calendar</div>
+            <div class="plugin-desc">日历视图管理日记，一键跳转到特定日期</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Kanban</div>
+            <div class="plugin-desc">看板视图管理任务，支持拖拽排序</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Excalidraw</div>
+            <div class="plugin-desc">手绘风格白板，直接嵌入笔记中</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Periodic Notes</div>
+            <div class="plugin-desc">周记/月记/年度回顾，配合 Calendar 使用</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">QuickAdd</div>
+            <div class="plugin-desc">快速添加笔记/内容，自定义捕获工作流</div>
+          </div>
+          <div class="plugin-card">
+            <div class="plugin-name">Obsidian Git</div>
+            <div class="plugin-desc">自动 Git 备份，版本控制与历史回溯</div>
+          </div>
+        </div>
+        <div class="warn-box" style="margin-top:12px;"><i class="ti ti-alert-triangle" aria-hidden="true"></i> 不要一次装太多插件！先装 3-5 个核心插件用熟，再按需扩展。插件过多会拖慢启动速度。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#FAECE7;"><i class="ti ti-network" style="color:#993C1D;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">5. 卡片盒笔记法（Zettelkasten）</div>
+            <div class="card-sub">原子化笔记 · 永久笔记 · 链接思想</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">闪念笔记（Fleeting Notes）</div>
+              <div class="step-desc">随时随地快速记录想法，不加修饰，放入 Inbox 文件夹，定期整理（每天/每周）。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">文献笔记（Literature Notes）</div>
+              <div class="step-desc">阅读书籍/文章时，用自己的话总结要点，记录来源信息。一本书对应一篇笔记。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">永久笔记（Permanent Notes）</div>
+              <div class="step-desc">将闪念和文献笔记提炼为独立的、原子化的思想单元。每篇笔记只讲一个概念，并主动与其他永久笔记建立链接。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">MOC（内容地图）</div>
+              <div class="step-desc">Map of Content：为某个主题创建索引笔记，汇集该主题下所有相关笔记的链接，作为知识领域的导航中心。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 实战工作流 -->
+  <div id="workflow" class="section">
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EAF3DE;"><i class="ti ti-sun" style="color:#3B6D11;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">每日工作流</div>
+            <div class="card-sub">晨间回顾 · 日记记录 · 晚间整理</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">🌅</span>
+            <div class="step-content">
+              <div class="step-title">早晨（5分钟）</div>
+              <div class="step-desc">打开 Calendar 插件创建今日日记，查看昨日未完成任务，用 Dataview 查看所有「进行中」项目，设定今日 3 个核心目标。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">☀️</span>
+            <div class="step-content">
+              <div class="step-title">日间（随时）</div>
+              <div class="step-desc">遇到好的想法 → 快速记入 Inbox；阅读文章 → 复制核心段落到对应笔记；会议记录 → 创建新笔记，链接到相关项目。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">🌙</span>
+            <div class="step-content">
+              <div class="step-title">晚间（15分钟）</div>
+              <div class="step-desc">清空 Inbox：将今天的闪念分类整理；完成今日日记的反思部分；为明天预设任务；图谱检查是否有孤立笔记需要链接。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#E6F1FB;"><i class="ti ti-book" style="color:#185FA5;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">读书笔记工作流</div>
+            <div class="card-sub">读前 · 读中 · 读后 · 复习</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="code-block">书名：原则
+作者：瑞·达利欧
+状态：读中
+评分：
+开始时间：2024-01-10
+完成时间：
+标签：[商业, 管理, 自传]</div>
+        <ul class="step-list" style="margin-top:10px;">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">读前：创建书籍笔记</div>
+              <div class="step-desc">使用书籍模板，填写基本信息。写下读这本书的目的和预期收获。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">读中：高亮与摘录</div>
+              <div class="step-desc">使用 Kindle Highlights 插件自动导入标注；或手动记录关键段落，务必用自己的话改写，而非直接复制。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">读后：提炼与链接</div>
+              <div class="step-desc">写核心观点总结（3-5条）；与已有笔记建立链接；创建行动清单；更新状态为「已读」。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EEEDFE;"><i class="ti ti-checklist" style="color:#534AB7;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">项目管理工作流</div>
+            <div class="card-sub">项目笔记 · 任务追踪 · 进度看板</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="code-block">---
+project: 网站重设计
+status: 进行中
+deadline: 2024-03-01
+team: [小明, 小红]
+---
+
+## 项目目标
+
+## 里程碑
+- [x] 需求调研
+- [ ] 原型设计 (截止 2/15)
+- [ ] 开发实现
+- [ ] 测试上线
+
+## 相关资料
+- [[竞品分析报告]]
+- [[用户调研结果]]
+- [[设计规范]]
+
+## 会议记录
+- [[2024-01-15 项目启动会]]</div>
+        <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i> 配合 Kanban 插件，可以把 <code>[[项目名]]</code> 卡片在「待办/进行中/完成」列之间拖拽，非常直观。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#FAEEDA;"><i class="ti ti-cloud-upload" style="color:#854F0B;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">多设备同步方案</div>
+            <div class="card-sub">官方同步 · iCloud · Git 备份</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">💰</span>
+            <div class="step-content">
+              <div class="step-title">Obsidian Sync（官方，$8/月）</div>
+              <div class="step-desc">最无缝，支持版本历史，端对端加密。适合对隐私有要求、不想折腾的用户。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">🆓</span>
+            <div class="step-content">
+              <div class="step-title">iCloud（仅 Apple 设备免费）</div>
+              <div class="step-desc">Mac + iPhone 组合最推荐。将 Vault 放在 iCloud Drive 文件夹下，自动同步，偶尔有冲突需手动解决。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">🔧</span>
+            <div class="step-content">
+              <div class="step-title">Obsidian Git（免费，需动手）</div>
+              <div class="step-desc">Vault 存为私有 Git 仓库，配合 Obsidian Git 插件自动提交推送。跨平台，有版本历史，但需要一点 Git 基础。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 快捷键 -->
+  <div id="shortcuts" class="section">
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#E6F1FB;"><i class="ti ti-keyboard" style="color:#185FA5;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">常用快捷键（Windows / Mac）</div>
+            <div class="card-sub">导航 · 编辑 · 搜索 · 视图</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px; color:var(--color-text-secondary); margin-bottom:8px;">Windows 用 Ctrl，Mac 用 ⌘</div>
+        <div style="font-size:13px; font-weight:500; color:var(--color-text-secondary); margin:10px 0 6px;">📂 文件操作</div>
+        <div class="shortcut-grid">
+          <div class="shortcut-item"><span class="shortcut-desc">新建笔记</span><span class="shortcut-key">Ctrl+N</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">打开文件</span><span class="shortcut-key">Ctrl+O</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">关闭当前标签</span><span class="shortcut-key">Ctrl+W</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">全局搜索</span><span class="shortcut-key">Ctrl+Shift+F</span></div>
+        </div>
+        <div style="font-size:13px; font-weight:500; color:var(--color-text-secondary); margin:14px 0 6px;">✏️ 编辑</div>
+        <div class="shortcut-grid">
+          <div class="shortcut-item"><span class="shortcut-desc">切换编辑/预览</span><span class="shortcut-key">Ctrl+E</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">加粗</span><span class="shortcut-key">Ctrl+B</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">斜体</span><span class="shortcut-key">Ctrl+I</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">插入链接</span><span class="shortcut-key">Ctrl+K</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">插入模板</span><span class="shortcut-key">Ctrl+Shift+T</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">命令面板</span><span class="shortcut-key">Ctrl+P</span></div>
+        </div>
+        <div style="font-size:13px; font-weight:500; color:var(--color-text-secondary); margin:14px 0 6px;">🔍 导航</div>
+        <div class="shortcut-grid">
+          <div class="shortcut-item"><span class="shortcut-desc">快速切换笔记</span><span class="shortcut-key">Ctrl+O</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">后退</span><span class="shortcut-key">Alt+←</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">前进</span><span class="shortcut-key">Alt+→</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">打开关系图谱</span><span class="shortcut-key">Ctrl+G</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">分屏</span><span class="shortcut-key">Ctrl+\</span></div>
+          <div class="shortcut-item"><span class="shortcut-desc">Properties 面板</span><span class="shortcut-key">Ctrl+;</span></div>
+        </div>
+        <div class="tip-box" style="margin-top:12px;"><i class="ti ti-settings" aria-hidden="true"></i> Settings → Hotkeys 可自定义所有快捷键。推荐给常用命令（如插入日期、打开 Inbox）设置专属快捷键。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:#EAF3DE;"><i class="ti ti-terminal" style="color:#3B6D11;" aria-hidden="true"></i></div>
+          <div>
+            <div class="card-title">命令面板（Ctrl+P）</div>
+            <div class="card-sub">最强导航 · 无需记忆快捷键</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down card-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="step-desc" style="font-size:14px; margin-bottom:10px;">命令面板是 Obsidian 最强大的功能之一，几乎所有操作都可以在这里完成：</div>
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num"><i class="ti ti-search" aria-hidden="true"></i></span>
+            <div class="step-content">
+              <div class="step-title">模糊搜索所有命令</div>
+              <div class="step-desc">输入关键词即可找到对应操作，如输入「graph」找到图谱相关命令，输入「split」找到分屏命令。</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num"><i class="ti ti-pin" aria-hidden="true"></i></span>
+            <div class="step-content">
+              <div class="step-title">固定常用命令</div>
+              <div class="step-desc">鼠标悬停在命令上可以看到「固定」选项，固定后下次打开命令面板会显示在最前面。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab).classList.add('active');
+}
+
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.card-chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+</script>
